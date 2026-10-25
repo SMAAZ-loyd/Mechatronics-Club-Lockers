@@ -179,7 +179,7 @@
     }
   }
 
-  document.getElementById('lockerForm').addEventListener('submit', async function(e) {
+document.getElementById('lockerForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     const btn = this.querySelector('.btn-submit');
     btn.textContent = "Submitting...";
@@ -198,8 +198,13 @@
     try {
       await fetch(SCRIPT_URL, {
         method: "POST",
+        mode: "no-cors", // Yeh line add karni hai
+        headers: {
+          "Content-Type": "text/plain;charset=utf-8"
+        },
         body: JSON.stringify(payload)
       });
+      
       alert("Locker assignment and inventory submitted to Core Team!");
       this.reset();
     } catch (err) {
@@ -209,7 +214,7 @@
       btn.disabled = false;
     }
   });
-
+  
   async function verifyCore() {
     const keyInput = document.getElementById('adminPass').value;
     const res = await fetch(`${SCRIPT_URL}?key=${encodeURIComponent(keyInput)}`);
