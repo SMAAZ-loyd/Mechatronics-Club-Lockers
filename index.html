@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mechatronics Club | Locker Portal</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --border: #334155;
+      --danger: #ef4444;
+      --success: #22c55e;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 2rem 1rem; line-height: 1.5; }
+    .container { max-width: 900px; margin: 0 auto; }
+    header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 1rem; margin-bottom: 2rem; }
+    h1 { font-size: 1.5rem; letter-spacing: 0.5px; }
+    .sub { color: var(--muted); font-size: 0.9rem; }
+    .nav-btns button { background: var(--card); color: var(--text); border: 1px solid var(--border); padding: 0.5rem 1rem; cursor: pointer; border-radius: 6px; margin-left: 0.5rem; }
+    .nav-btns button.active { border-color: var(--accent); color: var(--accent); }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+    .form-group { margin-bottom: 1rem; }
+    label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 0.4rem; }
+    input, select, textarea { width: 100%; padding: 0.65rem; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 6px; font-size: 0.95rem; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
+    .fee-banner { background: rgba(56, 189, 248, 0.1); border-left: 4px solid var(--accent); padding: 0.75rem 1rem; margin-bottom: 1.5rem; font-size: 0.9rem; }
+    .btn-submit { background: var(--accent); color: #0f172a; border: none; padding: 0.75rem 1.5rem; font-size: 1rem; border-radius: 6px; cursor: pointer; width: 100%; margin-top: 0.5rem; }
+    .hidden { display: none; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.75rem; border-bottom: 1px solid var(--border); }
+    th { color: var(--muted); font-weight: normal; }
+    .badge { padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; background: rgba(34, 197, 94, 0.15); color: var(--success); }
+    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .action-btn { background: transparent; border: 1px solid var(--border); color: var(--text); padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem; }
+    .action-btn.delete { border-color: var(--danger); color: var(--danger); }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div>
+      <h1>MECHATRONICS CLUB</h1>
+      <div class="sub">Locker Assignment & Inventory Portal</div>
+    </div>
+    <div class="nav-btns">
+      <button id="btnForm" class="active" onclick="switchView('form')">Member Form</button>
+      <button id="btnAdmin" onclick="switchView('admin')">Core Team View</button>
+    </div>
+  </header>
+
+  <!-- STUDENT REGISTRATION VIEW -->
+  <div id="viewForm" class="card">
+    <div class="fee-banner">
+      Monthly Membership & Locker Fee: 300 PKR. Please declare all items/components you plan to store inside the locker for safety and auditing.
+    </div>
+    <form id="lockerForm">
+      <div class="grid">
+        <div class="form-group">
+          <label>Full Name *</label>
+          <input type="text" id="name" required placeholder="Enter full name">
+        </div>
+        <div class="form-group">
+          <label>Registration / Roll Number *</label>
+          <input type="text" id="regNo" required placeholder="e.g., 2023-MC-01">
+        </div>
+        <div class="form-group">
+          <label>Phone / WhatsApp *</label>
+          <input type="tel" id="phone" required placeholder="03XX-XXXXXXX">
+        </div>
+        <div class="form-group">
+          <label>Preferred Locker Number *</label>
+          <select id="lockerNo" required>
+            <option value="">Select Locker</option>
+            <option value="L-01">Locker 01</option>
+            <option value="L-02">Locker 02</option>
+            <option value="L-03">Locker 03</option>
+            <option value="L-04">Locker 04</option>
+            <option value="L-05">Locker 05</option>
+            <option value="L-06">Locker 06</option>
+            <option value="L-07">Locker 07</option>
+            <option value="L-08">Locker 08</option>
+            <option value="L-09">Locker 09</option>
+            <option value="L-10">Locker 10</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Payment Method (300 PKR) *</label>
+          <select id="paymentMethod" required>
+            <option value="Cash">Cash (Submitted to Treasurer)</option>
+            <option value="JazzCash/EasyPaisa">JazzCash / EasyPaisa</option>
+            <option value="Bank Transfer">Bank Transfer</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Transaction ID / Receipt Ref *</label>
+          <input type="text" id="txId" required placeholder="Enter TxID or 'Cash'">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Declared Locker Contents / Stored Items (Visible only to Core Members) *</label>
+        <textarea id="contents" rows="3" required placeholder="List hardware, sensors, tools, microcontrollers, or personal items being kept in this locker..."></textarea>
+      </div>
+
+      <div class="form-group" style="display:flex; align-items:center; gap:0.5rem;">
+        <input type="checkbox" id="agree" required style="width:auto;">
+        <label for="agree" style="margin:0;">I agree to the club locker terms and confirm that my declared inventory is accurate.</label>
+      </div>
+
+      <button type="submit" class="btn-submit">Submit Locker Request</button>
+    </form>
+  </div>
+
+  <!-- CORE TEAM LOGIN VIEW -->
+  <div id="viewLogin" class="card hidden">
+    <div class="form-group">
+      <label>Core Member Access Key (Default: <code>mechcore2026</code>)</label>
+      <input type="password" id="adminPass" placeholder="Enter core access key">
+    </div>
+    <button class="btn-submit" onclick="verifyCore()">Unlock Dashboard</button>
+  </div>
+
+  <!-- CORE TEAM DASHBOARD VIEW -->
+  <div id="viewAdmin" class="card hidden">
+    <div class="top-bar">
+      <h2>Core Team Locker & Inventory Log</h2>
+      <div>
+        <button class="action-btn" onclick="exportCSV()">Export CSV</button>
+        <button class="action-btn delete" onclick="clearAll()">Clear All</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>Locker</th>
+            <th>Member</th>
+            <th>Roll No</th>
+            <th>Payment (300 PKR)</th>
+            <th>Declared Locker Contents</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody id="recordsBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby8kGes2bFoDjudsVtUAmZePzyZSYhIThstYf5He48B3XXOqi6CjQ-i8p0vE48S42FDbw/exec";
+  let currentKey = "";
+  let cachedRecords = [];
+
+  function switchView(view) {
+    document.getElementById('btnForm').classList.toggle('active', view === 'form');
+    document.getElementById('btnAdmin').classList.toggle('active', view === 'admin');
+    document.getElementById('viewForm').classList.add('hidden');
+    document.getElementById('viewLogin').classList.add('hidden');
+    document.getElementById('viewAdmin').classList.add('hidden');
+
+    if (view === 'form') {
+      document.getElementById('viewForm').classList.remove('hidden');
+    } else if (view === 'admin') {
+      if (currentKey) {
+        document.getElementById('viewAdmin').classList.remove('hidden');
+        loadRecords();
+      } else {
+        document.getElementById('viewLogin').classList.remove('hidden');
+      }
+    }
+  }
+
+  document.getElementById('lockerForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = this.querySelector('.btn-submit');
+    btn.textContent = "Submitting...";
+    btn.disabled = true;
+
+    const payload = {
+      name: document.getElementById('name').value,
+      regNo: document.getElementById('regNo').value,
+      phone: document.getElementById('phone').value,
+      lockerNo: document.getElementById('lockerNo').value,
+      paymentMethod: document.getElementById('paymentMethod').value,
+      txId: document.getElementById('txId').value,
+      contents: document.getElementById('contents').value
+    };
+
+    try {
+      await fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify(payload)
+      });
+      alert("Locker assignment and inventory submitted to Core Team!");
+      this.reset();
+    } catch (err) {
+      alert("Error submitting form. Please check your connection.");
+    } finally {
+      btn.textContent = "Submit Locker Request";
+      btn.disabled = false;
+    }
+  });
+
+  async function verifyCore() {
+    const keyInput = document.getElementById('adminPass').value;
+    const res = await fetch(`${SCRIPT_URL}?key=${encodeURIComponent(keyInput)}`);
+    const data = await res.json();
+
+    if (data.error) {
+      alert("Invalid Core Member Access Key.");
+    } else {
+      currentKey = keyInput;
+      cachedRecords = data;
+      document.getElementById('viewLogin').classList.add('hidden');
+      document.getElementById('viewAdmin').classList.remove('hidden');
+      renderRecords(data);
+    }
+  }
+
+  async function loadRecords() {
+    const res = await fetch(`${SCRIPT_URL}?key=${encodeURIComponent(currentKey)}`);
+    cachedRecords = await res.json();
+    renderRecords(cachedRecords);
+  }
+
+  function renderRecords(records) {
+    const tbody = document.getElementById('recordsBody');
+    tbody.innerHTML = records.length ? '' : '<tr><td colspan="6" style="text-align:center;color:var(--muted);">No lockers assigned yet.</td></tr>';
+
+    records.forEach((r) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><span class="badge">${r.lockerNo}</span></td>
+        <td>${r.name}<br><span class="sub">${r.phone}</span></td>
+        <td>${r.regNo}</td>
+        <td>${r.payment}</td>
+        <td>${r.contents}</td>
+        <td>${r.date}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function exportCSV() {
+    if (!cachedRecords.length) return alert("No records to export.");
+    const headers = ["Locker,Name,RollNo,Phone,Payment,Contents,Date"];
+    const rows = cachedRecords.map(r => `"${r.lockerNo}","${r.name}","${r.regNo}","${r.phone}","${r.payment}","${String(r.contents).replace(/"/g, '""')}","${r.date}"`);
+    const csv = "data:text/csv;charset=utf-8," + headers.concat(rows).join("\n");
+    const link = document.createElement("a");
+    link.setAttribute("href", encodeURI(csv));
+    link.setAttribute("download", "mechatronics_lockers.csv");
+    document.body.appendChild(link);
+    link.click();
+  }
+</script>
+</body>
+</html>
