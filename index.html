@@ -41,6 +41,12 @@
     .badge { padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.85rem; background: rgba(34, 197, 94, 0.15); color: var(--success); }
     .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
     .action-btn { background: transparent; border: 1px solid var(--border); color: var(--text); padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem; }
+    
+    /* Visual Locker Map Grid */
+    .locker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(55px, 1fr)); gap: 8px; margin-top: 1rem; }
+    .locker-box { padding: 8px; text-align: center; border-radius: 6px; font-size: 0.85rem; font-weight: bold; border: 1px solid var(--border); }
+    .locker-box.free { background: rgba(34, 197, 94, 0.15); color: var(--success); border-color: rgba(34, 197, 94, 0.4); }
+    .locker-box.booked { background: rgba(239, 68, 68, 0.15); color: var(--danger); border-color: rgba(239, 68, 68, 0.4); }
   </style>
 </head>
 <body>
@@ -88,8 +94,10 @@
           <input type="tel" id="phone" required placeholder="03XX-XXXXXXX">
         </div>
         <div class="form-group">
-          <label>Locker Number / Custom ID *</label>
-          <input type="text" id="lockerNo" required placeholder="e.g., L-12 or Locker B">
+          <label>Available Locker Number (2 to 48) *</label>
+          <select id="lockerNo" required>
+            <option value="">Loading available lockers...</option>
+          </select>
         </div>
         <div class="form-group">
           <label>Payment Method (300 PKR) *</label>
@@ -117,6 +125,13 @@
 
       <button type="submit" class="btn-submit">Submit Locker Request</button>
     </form>
+  </div>
+
+  <!-- VISUAL LOCKER MAP SECTION AT THE END OF PORTAL -->
+  <div class="card">
+    <h3>Live Locker Status Map (2 - 48)</h3>
+    <div class="sub" style="margin-bottom: 0.5rem;">Green = Available, Red = Booked</div>
+    <div id="lockerVisualGrid" class="locker-grid"></div>
   </div>
 
   <!-- CORE TEAM LOGIN VIEW -->
@@ -155,9 +170,51 @@
 </div>
 
 <script>
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzOY0Z3ZENblC871IZtiYas9ke7IZKnCvHeRWdLtYLAKlCeBtxzQ5px63DzAapgD6LeSg/exec";
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxyHufIEV_kR683eGApvL0uOjhPOhXeypeDrsQ8RDhb5mL66M5GVMx4J6Up5D7ULx7Dhw/exec";
   let currentKey = "";
   let cachedRecords = [];
+
+  // Load locker availability and build dropdown + visual grid from 2 to 48
+  async function loadLockerAvailability() {
+    try {
+      const res = await fetch(SCRIPT_URL);
+      const data = await res.json();
+      const bookedList = data.bookedLockers || [];
+
+      const select = document.getElementById('lockerNo');
+      select.innerHTML = '<option value="">Select Available Locker (2 - 48)</option>';
+      
+      const gridContainer = document.getElementById('lockerVisualGrid');
+      gridContainer.innerHTML = '';
+
+      for (let i = 2; i <= 48; i++) {
+        const lockerName = "Locker " + i;
+        const isBooked = bookedList.includes(lockerName);
+
+        // Add to dropdown only if NOT booked
+        if (!isBooked) {
+          const opt = document.createElement('option');
+          opt.value = lockerName;
+          opt.textContent = lockerName;
+          select.appendChild(opt);
+        }
+
+        // Add to visual map grid at the bottom
+        const box = document.createElement('div');
+        box.className = `locker-box ${isBooked ? 'booked' : 'free'}`;
+        box.textContent = i;
+        box.title = `${lockerName}: ${isBooked ? 'Booked' : 'Available'}`;
+        gridContainer.appendChild(box);
+      }
+    } catch (err) {
+      console.error("Failed to load locker availability", err);
+      document.getElementById('lockerNo').innerHTML = '<option value="">Error loading lockers. Refresh page.</option>';
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    loadLockerAvailability();
+  });
 
   function switchView(view) {
     document.getElementById('btnForm').classList.toggle('active', view === 'form');
@@ -168,6 +225,7 @@
 
     if (view === 'form') {
       document.getElementById('viewForm').classList.remove('hidden');
+      loadLockerAvailability();
     } else if (view === 'admin') {
       if (currentKey) {
         document.getElementById('viewAdmin').classList.remove('hidden');
@@ -180,6 +238,8 @@
 
   document.getElementById('lockerForm').addEventListener('submit', async function(e) {
     e.preventDefault();
+    const emailInput = document.getElementById('email').value.trim().toLowerCase();
+
     const btn = this.querySelector('.btn-submit');
     btn.textContent = "Submitting...";
     btn.disabled = true;
@@ -187,7 +247,7 @@
     const payload = {
       name: document.getElementById('name').value,
       regNo: document.getElementById('regNo').value,
-      email: document.getElementById('email').value,
+      email: emailInput,
       phone: document.getElementById('phone').value,
       lockerNo: document.getElementById('lockerNo').value,
       paymentMethod: document.getElementById('paymentMethod').value,
@@ -202,8 +262,9 @@
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(payload)
       });
-      alert("Locker request submitted! Confirmation email sent to your address.");
+      alert("Locker request submitted successfully! Confirmation email sent.");
       this.reset();
+      loadLockerAvailability();
     } catch (err) {
       alert("Error submitting form. Please check your connection.");
     } finally {
