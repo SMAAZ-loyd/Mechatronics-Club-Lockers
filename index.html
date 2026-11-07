@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mechatronics Club | Locker Portal</title>
+<meta name="description" content="Reserve your Mechatronics Club locker online." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#060b18; --bg2:#0b1226; --card:rgba(17,26,50,.62); --card-solid:#0f1830;
+    --line:rgba(120,160,255,.16); --text:#e8eefc; --muted:#8c9bbd;
+    --accent:#38bdf8; --accent2:#818cf8; --accent3:#22d3ee;
+    --ok:#22c55e; --bad:#ef4444; --warn:#f59e0b;
+    --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Inter',system-ui,sans-serif; color:var(--text); background:var(--bg);
+    min-height:100vh; overflow-x:hidden; line-height:1.55;
+  }
+  h1,h2,h3,.brand-name{font-family:'Space Grotesk','Inter',sans-serif}
+  #bg{position:fixed;inset:0;z-index:0;pointer-events:none}
+  .glow{position:fixed;border-radius:50%;filter:blur(110px);opacity:.35;z-index:0;pointer-events:none;animation:float 14s ease-in-out infinite}
+  .glow.a{width:420px;height:420px;background:#2563eb;top:-120px;left:-100px}
+  .glow.b{width:380px;height:380px;background:#7c3aed;bottom:-120px;right:-80px;animation-delay:-6s}
+  @keyframes float{0%,100%{transform:translate(0,0)}50%{transform:translate(40px,30px)}}
+  .wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 20px}
+
+  /* NAV */
+  nav{position:sticky;top:0;z-index:20;backdrop-filter:blur(14px);background:rgba(6,11,24,.6);border-bottom:1px solid var(--line)}
+  .nav-in{display:flex;align-items:center;justify-content:space-between;padding:14px 0;gap:12px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .logo{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;
+        background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 0 24px rgba(56,189,248,.45)}
+  .logo svg{width:24px;height:24px;animation:spin 10s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .brand-name{font-weight:700;font-size:1.1rem;letter-spacing:.2px}
+  .brand-sub{font-size:.72rem;color:var(--muted);margin-top:-2px}
+  .tabs{display:flex;gap:6px;background:rgba(255,255,255,.04);padding:5px;border-radius:999px;border:1px solid var(--line)}
+  .tab{border:0;background:transparent;color:var(--muted);padding:9px 18px;border-radius:999px;font:600 .85rem 'Inter';cursor:pointer;transition:.25s}
+  .tab:hover{color:var(--text)}
+  .tab.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#04101f;box-shadow:0 6px 20px rgba(56,189,248,.35)}
+
+  /* HERO */
+  .hero{text-align:center;padding:64px 0 36px}
+  .pill{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;border:1px solid var(--line);
+        background:rgba(56,189,248,.08);color:var(--accent);font-size:.78rem;font-weight:600;letter-spacing:.4px}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 0 rgba(34,197,94,.7);animation:pulse 1.8s infinite}
+  @keyframes pulse{70%{box-shadow:0 0 0 10px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
+  .hero h1{font-size:clamp(2.2rem,6vw,4rem);line-height:1.08;margin:20px auto 14px;max-width:820px;font-weight:700}
+  .grad{background:linear-gradient(100deg,var(--accent3),var(--accent),var(--accent2),var(--accent3));background-size:250% auto;
+        -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:shine 6s linear infinite}
+  @keyframes shine{to{background-position:250% center}}
+  .hero p{color:var(--muted);max-width:620px;margin:0 auto;font-size:1.05rem}
+  .typed{color:var(--accent);font-weight:600;border-right:2px solid var(--accent);padding-right:3px;animation:blink 1s step-end infinite}
+  @keyframes blink{50%{border-color:transparent}}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:640px;margin:34px auto 0}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px 10px;backdrop-filter:blur(10px);transition:.3s}
+  .stat:hover{transform:translateY(-4px);border-color:rgba(56,189,248,.5)}
+  .stat b{display:block;font:700 1.9rem 'Space Grotesk';color:var(--text)}
+  .stat span{font-size:.78rem;color:var(--muted)}
+
+  /* LAYOUT */
+  .view{display:none;padding-bottom:60px}
+  .view.active{display:block;animation:fadeUp .6s ease both}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+  .grid{display:grid;grid-template-columns:1.35fr 1fr;gap:24px;align-items:start}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:26px;backdrop-filter:blur(14px);
+        box-shadow:0 20px 50px rgba(0,0,0,.35)}
+  .card h2{font-size:1.25rem;margin-bottom:4px}
+  .card .sub{color:var(--muted);font-size:.88rem;margin-bottom:20px}
+  .reveal{opacity:0;transform:translateY(24px);transition:.7s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+
+  /* PAYMENT CARD */
+  .pay{background:linear-gradient(135deg,rgba(56,189,248,.14),rgba(129,140,248,.14));border:1px solid rgba(56,189,248,.35);
+       border-radius:16px;padding:20px;margin-bottom:22px;position:relative;overflow:hidden}
+  .pay::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.08) 50%,transparent 70%);
+              transform:translateX(-100%);animation:sweep 5s infinite}
+  @keyframes sweep{to{transform:translateX(100%)}}
+  .fee{display:flex;align-items:baseline;gap:8px;margin-bottom:10px}
+  .fee b{font:700 2.2rem 'Space Grotesk';color:var(--accent)}
+  .fee span{color:var(--muted);font-size:.9rem}
+  .pay small{color:var(--muted);display:block;margin-bottom:12px}
+  .acc{display:grid;gap:7px;font-size:.88rem;position:relative;z-index:1}
+  .acc div{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;background:rgba(6,11,24,.55);border-radius:10px}
+  .acc em{color:var(--muted);font-style:normal}
+  .copy{margin-left:8px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--accent);border-radius:8px;
+        padding:2px 9px;font:600 .72rem 'Inter';cursor:pointer;transition:.2s}
+  .copy:hover{background:var(--accent);color:#04101f}
+
+  /* FORM */
+  form{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .full{grid-column:1/-1}
+  .field label{display:block;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:7px}
+  .field label i{color:var(--bad);font-style:normal}
+  .field input,.field select,.field textarea{
+    width:100%;padding:13px 14px;border-radius:12px;border:1px solid var(--line);background:rgba(6,11,24,.7);
+    color:var(--text);font:500 .92rem 'Inter';outline:none;transition:.25s}
+  .field textarea{resize:vertical;min-height:100px}
+  .field input::placeholder,.field textarea::placeholder{color:#55627f}
+  .field input:hover,.field select:hover,.field textarea:hover{border-color:rgba(56,189,248,.4)}
+  .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(56,189,248,.15);transform:translateY(-1px)}
+  .field select option{background:#0b1226}
+  .check{display:flex;gap:10px;align-items:flex-start;font-size:.85rem;color:var(--muted);cursor:pointer}
+  .check input{width:18px;height:18px;accent-color:var(--accent);margin-top:2px}
+  .btn{position:relative;overflow:hidden;width:100%;padding:15px;border:0;border-radius:14px;cursor:pointer;
+       font:700 1rem 'Space Grotesk';color:#04101f;background:linear-gradient(120deg,var(--accent3),var(--accent),var(--accent2));
+       background-size:200% auto;transition:.35s;box-shadow:0 10px 30px rgba(56,189,248,.35)}
+  .btn:hover{background-position:right center;transform:translateY(-2px);box-shadow:0 16px 38px rgba(56,189,248,.5)}
+  .btn:active{transform:scale(.98)}
+  .btn:disabled{opacity:.7;cursor:wait}
+  .btn.sm{width:auto;padding:10px 18px;font-size:.85rem}
+  .btn.ghost{background:rgba(255,255,255,.06);color:var(--text);box-shadow:none;border:1px solid var(--line)}
+  .spin{display:inline-block;width:16px;height:16px;border:2.5px solid rgba(4,16,31,.3);border-top-color:#04101f;border-radius:50%;
+        animation:spin .7s linear infinite;vertical-align:-3px;margin-right:8px}
+
+  /* LOCKER MAP */
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.76rem;color:var(--muted);margin-bottom:14px}
+  .legend span{display:flex;align-items:center;gap:6px}
+  .legend i{width:12px;height:12px;border-radius:4px;display:inline-block}
+  .lockers{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+  .locker{aspect-ratio:1;border-radius:10px;border:1px solid rgba(34,197,94,.45);background:rgba(34,197,94,.1);color:#4ade80;
+          font:700 .82rem 'Space Grotesk';cursor:pointer;transition:.2s;animation:pop .45s both}
+  @keyframes pop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
+  .locker:hover:not(:disabled){transform:translateY(-3px) scale(1.08);background:rgba(34,197,94,.25);box-shadow:0 8px 18px rgba(34,197,94,.3)}
+  .locker.sel{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#04101f;border-color:transparent;box-shadow:0 0 0 3px rgba(56,189,248,.3),0 8px 22px rgba(56,189,248,.5)}
+  .locker:disabled{border-color:rgba(239,68,68,.45);background:rgba(239,68,68,.12);color:#f87171;cursor:not-allowed}
+  .skel{background:linear-gradient(90deg,rgba(255,255,255,.04),rgba(255,255,255,.12),rgba(255,255,255,.04));background-size:200% 100%;animation:sk 1.2s infinite}
+  @keyframes sk{to{background-position:-200% 0}}
+  .tip{margin-top:14px;font-size:.78rem;color:var(--muted)}
+
+  /* CORE VIEW */
+  .gate{max-width:440px;margin:40px auto;text-align:center}
+  .lockicon{width:64px;height:64px;margin:0 auto 14px;border-radius:18px;display:grid;place-items:center;font-size:1.8rem;
+            background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 0 30px rgba(56,189,248,.4)}
+  .gate form{grid-template-columns:1fr;margin-top:18px}
+  .err{color:#f87171;font-size:.84rem;min-height:20px;margin-top:8px}
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+  .toolbar input{flex:1;min-width:200px;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:rgba(6,11,24,.7);color:var(--text);font:500 .9rem 'Inter';outline:none}
+  .toolbar input:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(56,189,248,.15)}
+  .tbl-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px;max-height:560px}
+  table{width:100%;border-collapse:collapse;font-size:.86rem;min-width:900px}
+  th{position:sticky;top:0;background:#0d1730;text-align:left;padding:13px 14px;color:var(--muted);font-size:.74rem;letter-spacing:.6px;text-transform:uppercase;z-index:1}
+  td{padding:13px 14px;border-top:1px solid var(--line);vertical-align:top}
+  tbody tr{transition:.2s}
+  tbody tr:hover{background:rgba(56,189,248,.06)}
+  .tag{display:inline-block;padding:3px 10px;border-radius:999px;background:rgba(56,189,248,.14);color:var(--accent);font-weight:700;font-size:.78rem}
+  .tag.due{background:rgba(245,158,11,.16);color:var(--warn)}
+  .tag.over{background:rgba(239,68,68,.16);color:#f87171}
+  .tag.ok{background:rgba(34,197,94,.16);color:#4ade80}
+  .empty{padding:40px;text-align:center;color:var(--muted)}
+
+  /* TOAST + MODAL */
+  #toasts{position:fixed;right:18px;bottom:18px;z-index:60;display:grid;gap:10px}
+  .toast{min-width:240px;max-width:340px;padding:14px 16px;border-radius:14px;background:var(--card-solid);border:1px solid var(--line);
+         box-shadow:0 14px 40px rgba(0,0,0,.5);font-size:.9rem;animation:slide .4s both;border-left:4px solid var(--accent)}
+  .toast.ok{border-left-color:var(--ok)} .toast.bad{border-left-color:var(--bad)}
+  @keyframes slide{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}
+  .overlay{position:fixed;inset:0;z-index:70;background:rgba(3,6,14,.75);backdrop-filter:blur(8px);display:none;place-items:center;padding:20px}
+  .overlay.show{display:grid;animation:fade .3s both}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .modal{max-width:430px;width:100%;text-align:center;background:var(--card-solid);border:1px solid var(--line);border-radius:24px;padding:34px 28px;
+         animation:pop .5s both;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+  .checkmark{width:84px;height:84px;margin:0 auto 18px}
+  .checkmark circle{stroke:var(--ok);stroke-width:3;fill:none;stroke-dasharray:166;stroke-dashoffset:166;animation:draw .7s .1s forwards}
+  .checkmark path{stroke:var(--ok);stroke-width:4;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:50;stroke-dashoffset:50;animation:draw .5s .7s forwards}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  .modal h3{font-size:1.5rem;margin-bottom:8px}
+  .modal p{color:var(--muted);margin-bottom:22px;font-size:.95rem}
+  .confetti{position:fixed;top:-10px;width:9px;height:14px;z-index:80;pointer-events:none;animation:fall linear forwards}
+  @keyframes fall{to{transform:translateY(105vh) rotate(720deg);opacity:.8}}
+
+  footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:26px 0;text-align:center;color:var(--muted);font-size:.85rem;background:rgba(6,11,24,.6)}
+  footer a{color:var(--accent);text-decoration:none;font-weight:600}
+  footer a:hover{text-decoration:underline}
+
+  @media(max-width:900px){.grid{grid-template-columns:1fr}.lockers{grid-template-columns:repeat(8,1fr)}}
+  @media(max-width:560px){
+    form{grid-template-columns:1fr}.lockers{grid-template-columns:repeat(6,1fr)}
+    .card{padding:20px}.brand-sub{display:none}.tab{padding:8px 12px}.stat b{font-size:1.5rem}
+  }
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div class="glow a"></div><div class="glow b"></div>
+
+<nav>
+  <div class="wrap nav-in">
+    <div class="brand">
+      <div class="logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#04101f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-name">Mechatronics Club</div>
+        <div class="brand-sub">Locker Assignment &amp; Inventory Portal</div>
+      </div>
+    </div>
+    <div class="tabs">
+      <button class="tab active" data-view="member">Member Form</button>
+      <button class="tab" data-view="core">Core Team View</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ========================= MEMBER VIEW ========================= -->
+<main class="wrap">
+  <section id="view-member" class="view active">
+    <div class="hero">
+      <span class="pill"><span class="dot"></span> Registrations are open</span>
+      <h1>Reserve your <span class="grad">Mechatronics Club</span> locker in seconds</h1>
+      <p>Safe storage for your <span class="typed" id="typed"></span></p>
+      <div class="stats">
+        <div class="stat"><b id="stAvail">47</b><span>Available</span></div>
+        <div class="stat"><b id="stBooked">0</b><span>Booked</span></div>
+        <div class="stat"><b>300</b><span>PKR / month</span></div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card reveal">
+        <h2>Locker Registration</h2>
+        <p class="sub">Fill in your details. You'll get a confirmation email right away.</p>
+
+        <div class="pay">
+          <div class="fee"><b>300 PKR</b><span>/ month · membership &amp; locker fee</span></div>
+          <small>Send the fee to the <b>Finance Secretary (FS)</b> before submitting:</small>
+          <div class="acc">
+            <div><em>Account Title</em><span>Muhammad Uzair (Finance Secretary)</span></div>
+            <div><em>Account Number</em><span><span id="accNo">03260301018</span><button type="button" class="copy" id="copyBtn">Copy</button></span></div>
+            <div><em>Bank / Wallet</em><span>Sadapay · JazzCash · EasyPaisa</span></div>
+          </div>
+        </div>
+
+        <form id="regForm" novalidate>
+          <div class="field"><label>Full Name <i>*</i></label><input id="name" required placeholder="Enter full name" autocomplete="name" /></div>
+          <div class="field"><label>Registration / Roll Number <i>*</i></label><input id="regNo" required placeholder="e.g., 2023-MC-01" /></div>
+          <div class="field"><label>Email Address <i>*</i></label><input id="email" type="email" required placeholder="student@example.com" autocomplete="email" /></div>
+          <div class="field"><label>Phone / WhatsApp <i>*</i></label><input id="phone" type="tel" required placeholder="03XX-XXXXXXX" autocomplete="tel" /></div>
+          <div class="field"><label>Locker Number (2 – 48) <i>*</i></label><select id="locker" required><option value="">Loading lockers…</option></select></div>
+          <div class="field"><label>Payment Method <i>*</i></label>
+            <select id="method">
+              <option>Cash (Submitted directly to FS)</option>
+              <option>JazzCash</option>
+              <option>EasyPaisa</option>
+              <option>Bank Transfer</option>
+            </select>
+          </div>
+          <div class="field full"><label>Transaction ID / Receipt Ref <i>*</i></label><input id="txId" required placeholder="Enter online TxID or write 'Cash to FS'" /></div>
+          <div class="field full"><label>Declared Locker Contents <i>*</i> <span style="font-weight:400">(visible only to Core Members)</span></label>
+            <textarea id="contents" required placeholder="List hardware, sensors, tools, microcontrollers, or personal items kept in this locker…"></textarea></div>
+          <label class="check full"><input type="checkbox" id="agree" /> I agree to the club locker terms and confirm that my declared inventory is accurate.</label>
+          <div class="full"><button class="btn" id="submitBtn" type="submit">Submit Locker Request</button></div>
+        </form>
+      </div>
+
+      <aside class="card reveal" style="position:sticky;top:90px">
+        <h2>Live Locker Map</h2>
+        <p class="sub">Tap a green locker to select it.</p>
+        <div class="legend">
+          <span><i style="background:rgba(34,197,94,.5)"></i>Available</span>
+          <span><i style="background:rgba(239,68,68,.5)"></i>Booked</span>
+          <span><i style="background:linear-gradient(135deg,#38bdf8,#818cf8)"></i>Your pick</span>
+        </div>
+        <div class="lockers" id="lockers"></div>
+        <p class="tip">Map refreshes automatically every 30 seconds.</p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ========================= CORE VIEW ========================= -->
+  <section id="view-core" class="view">
+    <div class="hero" style="padding-bottom:10px">
+      <span class="pill">🔒 Restricted area</span>
+      <h1 style="font-size:clamp(2rem,5vw,3rem)">Core Team <span class="grad">Dashboard</span></h1>
+    </div>
+
+    <div class="card gate reveal in" id="gate">
+      <div class="lockicon">🔐</div>
+      <h2>Enter Core Key</h2>
+      <p class="sub">Only Mechatronics Club core members can view locker records.</p>
+      <form id="gateForm">
+        <div class="field"><input id="coreKey" type="password" placeholder="Core access key" autocomplete="off" /></div>
+        <button class="btn" id="gateBtn" type="submit">Unlock Dashboard</button>
+      </form>
+      <div class="err" id="gateErr"></div>
+    </div>
+
+    <div class="card" id="dash" style="display:none">
+      <div class="toolbar">
+        <input id="search" placeholder="Search name, reg no, locker, email…" />
+        <button class="btn sm ghost" id="refreshBtn" type="button">↻ Refresh</button>
+        <button class="btn sm" id="csvBtn" type="button">⬇ Export CSV</button>
+        <button class="btn sm ghost" id="lockBtn" type="button">Lock</button>
+      </div>
+      <div style="color:var(--muted);font-size:.84rem;margin-bottom:12px" id="count"></div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Locker</th><th>Name</th><th>Reg No</th><th>Phone</th><th>Email</th><th>Payment</th><th>Registered</th><th>Due</th><th>Contents</th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    © <span id="yr"></span> Mechatronics Club · Questions? Email
+    <a href="mailto:mechatronicsclub@gmail.com">mechatronicsclub@gmail.com</a>
+  </div>
+</footer>
+
+<div id="toasts"></div>
+
+<div class="overlay" id="okModal">
+  <div class="modal">
+    <svg class="checkmark" viewBox="0 0 52 52"><circle cx="26" cy="26" r="25"/><path d="M14 27l8 8 16-17"/></svg>
+    <h3>Locker Reserved! 🎉</h3>
+    <p id="okMsg">Your locker has been assigned.</p>
+    <button class="btn" id="okClose" type="button">Awesome</button>
+  </div>
+</div>
+
+<script>
+/* ===================== CONFIG ===================== */
+// Paste your deployed Apps Script Web App URL (ends with /exec)
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwlc2gdXYp4UhvnSYI9QF4L4ob5IEXq20WV3LjfpjQXCjpRndxu7RQnxtRaTaCtWSrF/exec";
+const MIN_L = 2, MAX_L = 48, CONTACT = "mechatronicsclub@gmail.com";
+
+/* ===================== HELPERS ===================== */
+const $ = (id) => document.getElementById(id);
+const configured = () => SCRIPT_URL && !SCRIPT_URL.includes("PASTE_YOUR");
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+
+function toast(msg, type = "") {
+  const t = document.createElement("div");
+  t.className = "toast " + type; t.textContent = msg;
+  $("toasts").appendChild(t);
+  setTimeout(() => { t.style.transition = ".4s"; t.style.opacity = 0; t.style.transform = "translateX(40px)"; setTimeout(() => t.remove(), 400); }, 4200);
+}
+function countTo(el, to) {
+  const from = Number(el.textContent) || 0, start = performance.now(), dur = 700;
+  (function step(now) {
+    const p = Math.min(1, (now - start) / dur);
+    el.textContent = Math.round(from + (to - from) * (1 - Math.pow(1 - p, 3)));
+    if (p < 1) requestAnimationFrame(step);
+  })(start);
+}
+function confetti() {
+  const colors = ["#38bdf8", "#818cf8", "#22d3ee", "#22c55e", "#f59e0b", "#f472b6"];
+  for (let i = 0; i < 70; i++) {
+    const c = document.createElement("div");
+    c.className = "confetti";
+    c.style.left = Math.random() * 100 + "vw";
+    c.style.background = colors[i % colors.length];
+    c.style.animationDuration = 2 + Math.random() * 2.2 + "s";
+    c.style.animationDelay = Math.random() * .5 + "s";
+    c.style.borderRadius = Math.random() > .5 ? "50%" : "2px";
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 5200);
+  }
+}
+
+/* ===================== BACKGROUND (circuit nodes) ===================== */
+(function () {
+  const cv = $("bg"), ctx = cv.getContext("2d");
+  let w, h, pts = [];
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function size() {
+    w = cv.width = innerWidth; h = cv.height = innerHeight;
+    const n = Math.min(70, Math.floor(w * h / 22000));
+    pts = Array.from({ length: n }, () => ({ x: Math.random() * w, y: Math.random() * h, vx: (Math.random() - .5) * .35, vy: (Math.random() - .5) * .35 }));
+  }
+  function draw() {
+    ctx.clearRect(0, 0, w, h);
+    for (const p of pts) {
+      if (!reduce) { p.x += p.vx; p.y += p.vy; }
+      if (p.x < 0 || p.x > w) p.vx *= -1;
+      if (p.y < 0 || p.y > h) p.vy *= -1;
+      ctx.beginPath(); ctx.arc(p.x, p.y, 1.6, 0, 6.28); ctx.fillStyle = "rgba(56,189,248,.7)"; ctx.fill();
+    }
+    for (let i = 0; i < pts.length; i++) for (let j = i + 1; j < pts.length; j++) {
+      const dx = pts[i].x - pts[j].x, dy = pts[i].y - pts[j].y, d = Math.hypot(dx, dy);
+      if (d < 130) { ctx.strokeStyle = `rgba(99,140,255,${.18 * (1 - d / 130)})`; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(pts[i].x, pts[i].y); ctx.lineTo(pts[j].x, pts[j].y); ctx.stroke(); }
+    }
+    if (!reduce) requestAnimationFrame(draw);
+  }
+  addEventListener("resize", () => { size(); if (reduce) draw(); });
+  size(); draw();
+})();
+
+/* ===================== TYPING TEXT ===================== */
+(function () {
+  const words = ["microcontrollers.", "sensors & modules.", "tools & hardware.", "robotics projects.", "your big ideas."];
+  let w = 0, c = 0, del = false; const el = $("typed");
+  (function tick() {
+    const word = words[w];
+    el.textContent = word.slice(0, c);
+    if (!del && c === word.length) { del = true; return setTimeout(tick, 1400); }
+    if (del && c === 0) { del = false; w = (w + 1) % words.length; }
+    c += del ? -1 : 1;
+    setTimeout(tick, del ? 35 : 75);
+  })();
+})();
+
+/* ===================== NAV / TABS ===================== */
+document.querySelectorAll(".tab").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t === b));
+  document.querySelectorAll(".view").forEach(v => v.classList.toggle("active", v.id === "view-" + b.dataset.view));
+  scrollTo({ top: 0, behavior: "smooth" });
+}));
+$("yr").textContent = new Date().getFullYear();
+
+/* scroll reveal */
+const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { threshold: .08 });
+document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+
+/* copy account number */
+$("copyBtn").addEventListener("click", async () => {
+  try { await navigator.clipboard.writeText($("accNo").textContent); toast("Account number copied ✓", "ok"); }
+  catch { toast("Couldn't copy. Please copy it manually."); }
+});
+
+/* ===================== LOCKERS ===================== */
+let booked = new Set(), selected = null;
+const total = MAX_L - MIN_L + 1;
+
+function buildMap(loading) {
+  const box = $("lockers"); box.innerHTML = "";
+  for (let n = MIN_L; n <= MAX_L; n++) {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "locker" + (loading ? " skel" : ""); b.textContent = n;
+    b.style.animationDelay = (n - MIN_L) * 12 + "ms";
+    if (!loading) {
+      if (booked.has(n)) b.disabled = true;
+      if (selected === n) b.classList.add("sel");
+      b.addEventListener("click", () => selectLocker(n));
+    } else b.disabled = true;
+    box.appendChild(b);
+  }
+}
+function buildSelect() {
+  const s = $("locker"); const keep = selected;
+  s.innerHTML = '<option value="">Select available locker (2 - 48)</option>';
+  for (let n = MIN_L; n <= MAX_L; n++) if (!booked.has(n)) s.add(new Option("Locker " + n, n));
+  if (keep && !booked.has(keep)) s.value = keep; else selected = null;
+}
+function selectLocker(n) {
+  selected = n; $("locker").value = n;
+  document.querySelectorAll(".locker").forEach(b => b.classList.toggle("sel", Number(b.textContent) === n));
+}
+$("locker").addEventListener("change", e => { selected = e.target.value ? Number(e.target.value) : null; buildMap(false); });
+function refreshStats() { countTo($("stBooked"), booked.size); countTo($("stAvail"), total - booked.size); }
+
+async function loadBooked(first) {
+  if (!configured()) {
+    if (first) { buildMap(false); buildSelect(); toast("Demo mode: add your Web App URL in index.html (SCRIPT_URL)."); }
+    return;
+  }
+  try {
+    const r = await fetch(SCRIPT_URL, { cache: "no-store" });
+    const d = await r.json();
+    booked = new Set((d.bookedLockers || []).map(Number).filter(Boolean));
+  } catch (e) { if (first) toast("Couldn't load live locker data. Please refresh.", "bad"); }
+  buildMap(false); buildSelect(); refreshStats();
+}
+buildMap(true); loadBooked(true); setInterval(() => loadBooked(false), 30000);
+
+/* ===================== SUBMIT ===================== */
+$("regForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const req = ["name", "regNo", "email", "phone", "locker", "txId", "contents"];
+  for (const id of req) if (!$(id).value.trim()) { $(id).focus(); return toast("Please fill in all required fields.", "bad"); }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test($("email").value.trim())) { $("email").focus(); return toast("Please enter a valid email address.", "bad"); }
+  if (!$("agree").checked) return toast("Please accept the locker terms to continue.", "bad");
+  if (!configured()) return toast("Add your Web App URL (SCRIPT_URL) first.", "bad");
+
+  const btn = $("submitBtn"); btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Submitting…';
+  const payload = {
+    lockerNo: $("locker").value, name: $("name").value.trim(), regNo: $("regNo").value.trim(),
+    phone: $("phone").value.trim(), email: $("email").value.trim(), paymentMethod: $("method").value,
+    txId: $("txId").value.trim(), contents: $("contents").value.trim()
+  };
+  try {
+    // text/plain avoids the CORS preflight that Apps Script rejects
+    const r = await fetch(SCRIPT_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload) });
+    const res = await r.json();
+    if (res.status !== "success") throw new Error(res.message || "Submission failed");
+    booked.add(Number(payload.lockerNo)); selected = null;
+    $("regForm").reset(); buildMap(false); buildSelect(); refreshStats();
+    $("okMsg").textContent = res.emailSent
+      ? `Locker ${payload.lockerNo} is yours! A confirmation email has been sent to ${payload.email}.`
+      : `Locker ${payload.lockerNo} is yours! (We couldn't send the email, so please contact ${CONTACT}.)`;
+    $("okModal").classList.add("show"); confetti();
+  } catch (err) { toast(String(err.message || err), "bad"); loadBooked(false); }
+  finally { btn.disabled = false; btn.textContent = "Submit Locker Request"; }
+});
+$("okClose").addEventListener("click", () => $("okModal").classList.remove("show"));
+$("okModal").addEventListener("click", e => { if (e.target.id === "okModal") $("okModal").classList.remove("show"); });
+
+/* ===================== CORE DASHBOARD ===================== */
+let coreKey = "", records = [];
+async function fetchRecords() {
+  const r = await fetch(SCRIPT_URL + "?key=" + encodeURIComponent(coreKey), { cache: "no-store" });
+  const d = await r.json();
+  if (!Array.isArray(d)) throw new Error("Incorrect key");
+  records = d; renderTable();
+}
+function dueTag(due) {
+  if (!due) return "";
+  const days = Math.round((new Date(due) - new Date().setHours(0, 0, 0, 0)) / 864e5);
+  if (isNaN(days)) return esc(due);
+  const cls = days < 0 ? "over" : days <= 3 ? "due" : "ok";
+  const txt = days < 0 ? `Overdue ${-days}d` : days === 0 ? "Due today" : `${days}d left`;
+  return `<span class="tag ${cls}" title="${esc(due)}">${txt}</span>`;
+}
+function renderTable() {
+  const q = $("search").value.trim().toLowerCase();
+  const rows = records.filter(r => !q || Object.values(r).join(" ").toLowerCase().includes(q));
+  $("count").textContent = `${rows.length} of ${records.length} registrations`;
+  $("tbody").innerHTML = rows.length ? rows.map(r => `<tr>
+      <td><span class="tag">#${esc(r.lockerNo)}</span></td><td>${esc(r.name)}</td><td>${esc(r.regNo)}</td>
+      <td>${esc(r.phone)}</td><td>${esc(r.email)}</td><td>${esc(r.payment)}</td><td>${esc(r.date)}</td>
+      <td>${dueTag(r.dueDate)}</td><td style="max-width:260px">${esc(r.contents)}</td></tr>`).join("")
+    : `<tr><td colspan="9" class="empty">No records found.</td></tr>`;
+}
+$("gateForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  if (!configured()) return ($("gateErr").textContent = "Add your Web App URL (SCRIPT_URL) first.");
+  coreKey = $("coreKey").value.trim(); $("gateErr").textContent = "";
+  const b = $("gateBtn"); b.disabled = true; b.innerHTML = '<span class="spin"></span>Checking…';
+  try { await fetchRecords(); $("gate").style.display = "none"; $("dash").style.display = "block"; toast("Dashboard unlocked ✓", "ok"); }
+  catch (err) { $("gateErr").textContent = err.message === "Incorrect key" ? "Incorrect key. Please try again." : "Couldn't reach the server."; }
+  finally { b.disabled = false; b.textContent = "Unlock Dashboard"; }
+});
+$("search").addEventListener("input", renderTable);
+$("refreshBtn").addEventListener("click", async () => { try { await fetchRecords(); toast("Data refreshed ✓", "ok"); } catch { toast("Refresh failed.", "bad"); } });
+$("lockBtn").addEventListener("click", () => { coreKey = ""; records = []; $("coreKey").value = ""; $("dash").style.display = "none"; $("gate").style.display = "block"; });
+$("csvBtn").addEventListener("click", () => {
+  const cols = ["date", "lockerNo", "name", "regNo", "phone", "email", "payment", "dueDate", "contents"];
+  const csv = [cols.join(",")].concat(records.map(r => cols.map(c => `"${String(r[c] ?? "").replace(/"/g, '""')}"`).join(","))).join("\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = "mechatronics-lockers.csv"; a.click();
+});
+</script>
+</body>
+</html>
