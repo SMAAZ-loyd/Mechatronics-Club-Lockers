@@ -22,18 +22,3 @@ The portal features a public registration form for students and a password-prote
 * **Hosting:** GitHub Pages
 
 ---
-
-## Setup & Deployment Guide
-
-### 1. Google Sheets & Apps Script Setup
-1. Create a new **Google Sheet** and share it exclusively with your core team members.
-2. Name the columns in Row 1: `Timestamp`, `Locker`, `Name`, `RollNo`, `Phone`, `Payment`, `Contents`.
-3. In the top menu, go to **Extensions > Apps Script**.
-4. Paste the backend script code (configured with your secret core access key) and save.
-5. Click **Deploy > New deployment**, select **Web app**, set execution to **Me**, access to **Anyone**, and deploy. Copy the generated Web App URL.
-
-### 2. Frontend Configuration
-1. Open `index.html` in a text editor.
-2. Locate the `SCRIPT_URL` variable at the top of the script block:
-   ```javascript
-   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby8kGes2bFoDjudsVtUAmZePzyZSYhIThstYf5He48B3XXOqi6CjQ-i8p0vE48S42FDbw/exec";
